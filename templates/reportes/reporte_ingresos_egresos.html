@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Ingresos y Egresos{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="report-header">
+        <h1>Reporte de Ingresos y Egresos</h1>
+        <div class="report-actions">
+            <form method="GET" class="form-periodo">
+                <select name="tipo_tiempo" id="tipo_tiempo" onchange="this.form.submit()" class="form-control">
+                    <option value="mensual" {% if tipo_tiempo == 'mensual' %}selected{% endif %}>Mensual</option>
+                    <option value="semanal" {% if tipo_tiempo == 'semanal' %}selected{% endif %}>Semanal</option>
+                </select>
+            </form>
+            <div class="btn-group">
+                <a href="{% url 'exportar_reporte_financiero' %}?tipo_tiempo={{ tipo_tiempo }}" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Excel
+                </a>
+                <a href="{% url 'exportar_reporte_pdf' %}?tipo_tiempo={{ tipo_tiempo }}" class="btn btn-danger">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card income">
+            <h3>Ingresos Totales</h3>
+            <p class="amount">${{ total_ingresos|floatformat:2 }}</p>
+        </div>
+        <div class="stat-card expense">
+            <h3>Egresos Totales</h3>
+            <p class="amount">${{ total_egresos|floatformat:2 }}</p>
+        </div>
+        <div class="stat-card balance">
+            <h3>Balance</h3>
+            <p class="amount">${{ balance|floatformat:2 }}</p>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-wrapper">
+            <h3>Evolución de Ingresos y Egresos</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+        
+        <div class="chart-wrapper">
+            <h3>Distribución de Egresos por Categoría</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener los datos pre-formateados
+    const chartData = JSON.parse('{{ chart_data|escapejs }}');
+
+    // Configurar gráfico de línea
+    const lineChart = new Chart(
+        document.getElementById('lineChart'),
+        {
+            type: 'line',
+            data: {
+                labels: chartData.line_chart.labels,
+                datasets: [
+                    {
+                        label: 'Ingresos',
+                        data: chartData.line_chart.ingresos,
+                        borderColor: '#28a745',
+                        backgroundColor: '#28a74533',
+                        fill: true
+                    },
+                    {
+                        label: 'Egresos',
+                        data: chartData.line_chart.egresos,
+                        borderColor: '#dc3545',
+                        backgroundColor: '#dc354533',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Ingresos vs Egresos'
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        }
+    );
+
+    // Configurar gráfico de torta
+    const pieChart = new Chart(
+        document.getElementById('pieChart'),
+        {
+            type: 'pie',
+            data: {
+                labels: chartData.pie_chart.labels,
+                datasets: [{
+                    data: chartData.pie_chart.data,
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Egresos'
+                    }
+                }
+            }
+        }
+    );
+});
+</script>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+.stat-card.income { border-left: 4px solid #28a745; }
+.stat-card.expense { border-left: 4px solid #dc3545; }
+.stat-card.balance { border-left: 4px solid #007bff; }
+
+.amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.chart-wrapper {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.report-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.pedidos-stats .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+</style>
+{% endblock %}

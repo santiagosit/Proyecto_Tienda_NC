@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Lista de Eventos</h2>
+    
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="filters-section">
+        <button id="filtroButton" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+        <a href="{% url 'crear_evento' %}" class="cta-btn">
+            <i class="fas fa-calendar-plus"></i> Crear Nuevo Evento
+        </a>
+    </div>
+
+    <!-- Modal para filtros -->
+    <div id="filtroModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="filtroForm" method="GET" action="{% url 'listar_eventos' %}">
+                <h3>Filtrar Eventos</h3>
+                
+                <div class="form-group">
+                    <label for="filtro-cliente">Cliente:</label>
+                    <input type="text" id="filtro-cliente" name="cliente" class="form-control" value="{{ request.GET.cliente }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-telefono">Teléfono:</label>
+                    <input type="text" id="filtro-telefono" name="telefono" class="form-control" value="{{ request.GET.telefono }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-fecha">Fecha:</label>
+                    <input type="date" id="filtro-fecha" name="fecha" class="form-control" value="{{ request.GET.fecha }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-descripcion">Descripción:</label>
+                    <input type="text" id="filtro-descripcion" name="descripcion" class="form-control" value="{{ request.GET.descripcion }}">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                    <a href="{% url 'listar_eventos' %}" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Teléfono</th>
+                    <th>Descripción</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for evento in eventos %}
+                <tr>
+                    <td>{{ evento.id }}</td>
+                    <td>{{ evento.cliente.nombre }}</td>
+                    <td>{{ evento.cliente.telefono }}</td>
+                    <td>{{ evento.descripcion }}</td>
+                    <td>{{ evento.fecha_evento }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'editar_evento' evento.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_evento' evento.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('filtroButton').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'block';
+    }
+
+    document.querySelector('.close').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('filtroModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

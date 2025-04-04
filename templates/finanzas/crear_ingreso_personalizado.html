@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Ingreso Personalizado{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Crear Ingreso Personalizado</h2>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-container">
+        <form method="post" class="event-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="monto">Monto ($):</label>
+                <input type="number" 
+                       id="monto" 
+                       name="monto" 
+                       class="form-control" 
+                       step="0.01" 
+                       min="0.01" 
+                       required
+                       placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" 
+                          name="descripcion" 
+                          class="form-control" 
+                          rows="3"
+                          placeholder="Descripción del ingreso..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Crear Ingreso
+                </button>
+                <a href="{% url 'listar_ingresos' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.messages {
+    margin-bottom: 1rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+</style>
+{% endblock %}

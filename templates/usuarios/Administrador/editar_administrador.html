@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Administrador{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Editar Administrador</h2>
+    <div class="form-container">
+        {% if messages %}
+        <div class="form-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="admin-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in user_form %}
+                    <div class="form-group {% if field.name in 'email,username' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                {% for field in profile_form %}
+                    <div class="form-group {% if field.name == 'direccion' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <a href="{% url 'listar_administradores' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

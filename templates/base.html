@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Aplicación{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/estilosinv.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'home' %}">Pola-Control</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                        {% if profile.rol == 'Administrador' or request.user.is_superuser %}
+                            <a class="nav-link" href="{% url 'home' %}">Inicio</a>
+                            {% else %}
+                            <a class="nav-link" href="{% url 'empleado_dashboard' %}">Inicio</a>
+                        {% endif %}
+                        </li>
+                        
+                        {% if profile.rol == 'Administrador' or request.user.is_superuser %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Productos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'listar_productos' %}">Listar Productos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'registrar_producto' %}">Registrar Producto</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Ventas
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'registrar_venta' %}">Registrar Venta</a></li>
+                                {% if profile.rol == 'Administrador' or request.user.is_superuser %}
+                                    <li><a class="dropdown-item" href="{% url 'listar_ventas' %}">Ventas</a></li>
+                                {% else %}
+                                    <li><a class="dropdown-item" href="{% url 'mis_ventas' %}">Mis Ventas</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        {% if profile.rol == 'Administrador' or request.user.is_superuser %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Reportes
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'reporte_inventario' %}">Reporte de Inventario</a></li>
+                                <li><a class="dropdown-item" href="{% url 'exportar_reporte_excel' %}">Descargar Reporte en Excel</a></li>
+                                <li><a class="dropdown-item" href="{% url 'reporte_ingresos_egresos' %}">Estadísticas</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Pedidos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'listar_proveedores' %}">Proveedores</a></li>
+                                <li><a class="dropdown-item" href="{% url 'listar_pedidos' %}">Pedidos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'registrar_proveedor' %}">Registrar Proveedor</a></li>
+                                <li><a class="dropdown-item" href="{% url 'registrar_pedido' %}">Registrar Pedido</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Finanzas
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'listar_ingresos' %}">Ingresos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'listar_egresos' %}">Egresos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'crear_egreso_personalizado' %}">Crear Egreso</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Usuarios
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% if request.user.is_superuser %}
+                                <li><a class="dropdown-item" href="{% url 'crear_administrador' %}">Registrar Administrador</a></li>
+                                <li><a class="dropdown-item" href="{% url 'listar_administradores' %}">Listar Administradores</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'crear_empleado' %}">Registrar Empleado</a></li>
+                                <li><a class="dropdown-item" href="{% url 'listar_empleados' %}">Listar Empleados</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Eventos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'listar_eventos' %}">Listar Eventos</a></li>
+                                <li><a class="dropdown-item" href="{% url 'crear_evento' %}">Crear Evento</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <ul class="navbar-nav ms-auto">
+                        {% if profile.rol == 'Administrador' or request.user.is_superuser %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                                <img src="{% static 'images/bell.png' %}" alt="Notificaciones" width="24">
+                                {% if num_notificaciones > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ num_notificaciones }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header text-danger">Productos bajos en Stock</h6></li>
+                                {% for producto in productos_bajo_stock %}
+                                    <li><span class="dropdown-item">{{ producto.nombre }}: {{ producto.cantidad_stock }} en stock</span></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                                <img src="{% static 'images/perfil.png' %}" alt="Perfil" width="24">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text">{{ request.user.username }}</span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <p class="text-muted">&copy; 2024 Pola-Control</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'scripts/script.js' %}"></script>
+</body>
+</html>

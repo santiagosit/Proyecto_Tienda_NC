@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Ventas{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h1>Listado de Ventas</h1>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="actions mb-4">
+        <a href="{% url 'registrar_venta' %}" class="btn btn-primary">
+            Nueva Venta
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Empleado</th>
+                    <th>Estado</th>
+                    <th>Subtotal</th>
+                    <th>IVA</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr>
+                    <td>#{{ venta.id }}</td>
+                    <td>{{ venta.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>{{ venta.empleado.nombre_completo }}</td>
+                    <td>
+                        <span class="badge {% if venta.estado == 'completada' %}badge-success
+                                         {% elif venta.estado == 'pendiente' %}badge-warning
+                                         {% else %}badge-danger{% endif %}">
+                            {{ venta.estado|title }}
+                        </span>
+                    </td>
+                    <td>${{ venta.subtotal|floatformat:2 }}</td>
+                    <td>${{ venta.iva|floatformat:2 }}</td>
+                    <td>${{ venta.total|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-info btn-sm">
+                            Ver Detalle
+                        </a>
+                        {% if user.profile.rol == 'Administrador' or user.is_superuser %}
+                        <a href="{% url 'editar_venta' venta.id %}" class="btn btn-warning btn-sm">
+                            Editar
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay ventas registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

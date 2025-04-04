@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Venta{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="confirmation-card">
+        <h2>Confirmar Venta</h2>
+        
+        <div class="summary">
+            <h3>Resumen de la Venta</h3>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in productos_venta %}
+                        <tr>
+                            <td>{{ detalle.producto_nombre }}</td>
+                            <td>{{ detalle.cantidad }}</td>
+                            <td>${{ detalle.precio_unitario }}</td>
+                            <td>${{ detalle.subtotal }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"><strong>Total:</strong></td>
+                            <td>${{ total|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="confirmation-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="confirmar" class="btn btn-success">
+                    Confirmar Venta
+                </button>
+                <a href="{% url 'registrar_venta' %}" class="btn btn-secondary">
+                    Volver
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

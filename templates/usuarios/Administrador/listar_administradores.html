@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Listar Administradores{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Lista de Administradores</h2>
+    
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="filters-section">
+        <button id="filtroButton" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+        <a href="{% url 'crear_administrador' %}" class="cta-btn">
+            <i class="fas fa-user-plus"></i> Crear Nuevo Administrador
+        </a>
+    </div>
+
+    <!-- Modal para filtros -->
+    <div id="filtroModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="filtroForm" method="GET" action="{% url 'listar_administradores' %}">
+                <h3>Filtrar Administradores</h3>
+                
+                <div class="form-group">
+                    <label for="filtro-nombre">Nombre:</label>
+                    <input type="text" id="filtro-nombre" name="nombre" class="form-control" value="{{ request.GET.nombre }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-email">Email:</label>
+                    <input type="email" id="filtro-email" name="email" class="form-control" value="{{ request.GET.email }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-telefono">Teléfono:</label>
+                    <input type="text" id="filtro-telefono" name="telefono" class="form-control" value="{{ request.GET.telefono }}">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                    <a href="{% url 'listar_administradores' %}" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in administradores %}
+                <tr>
+                    <td>{{ admin.user.username }}</td>
+                    <td>{{ admin.user.email }}</td>
+                    <td>{{ admin.telefono }}</td>
+                    <td>{{ admin.direccion }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'editar_administrador' admin.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_administrador' admin.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // JavaScript para el modal
+    document.getElementById('filtroButton').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'block';
+    }
+
+    document.querySelector('.close').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('filtroModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Creación de Empleado{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Confirmar Datos del Nuevo Empleado</h2>
+    
+    <div class="confirmation-data">
+        <dl>
+            <dt>Usuario:</dt>
+            <dd>{{ data.username }}</dd>
+            
+            <dt>Email:</dt>
+            <dd>{{ data.email }}</dd>
+            
+            <dt>Nombre Completo:</dt>
+            <dd>{{ data.nombre_completo }}</dd>
+            
+            <dt>Teléfono:</dt>
+            <dd>{{ data.telefono }}</dd>
+            
+            <dt>Dirección:</dt>
+            <dd>{{ data.direccion }}</dd>
+            
+            <dt>Fecha de Contratación:</dt>
+            <dd>{{ data.fecha_contratacion }}</dd>
+        </dl>
+    </div>
+    
+    <form method="post" class="form-actions">
+        {% csrf_token %}
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">Confirmar Creación</button>
+            <a href="{% url 'crear_empleado' %}" class="btn btn-secondary">Volver</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

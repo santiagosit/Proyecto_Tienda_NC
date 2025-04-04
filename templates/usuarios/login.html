@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilos.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="wrapper">
+        <form action="{% url 'login' %}" method="post" id="loginForm">
+            {% csrf_token %} <!-- Token de seguridad -->
+            <h1>Login</h1>
+            <div class="input-box">
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                <i class="bx bxs-user"></i>
+            </div>
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required>
+                <i class="bx bxs-lock-alt"></i>
+            </div>
+            <div class="remember-forgot">
+                <label><input type="checkbox" id="rememberMe">Remember Me</label>
+                <a href="{% url 'recuperar_password' %}">Forgot Password</a>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            {% if error %}
+                <p style="color:red;">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+
+    <script>
+        // Función para guardar el usuario en una cookie si se marca 'Remember Me'
+        function handleRememberMe() {
+            const username = document.getElementById('username').value;
+            if (document.getElementById('rememberMe').checked) {
+                const date = new Date();
+                // Válido por 30 días
+                date.setTime(date.getTime() + (30*24*60*60*1000));
+                const expires = "expires=" + date.toUTCString();
+                document.cookie = `username=${username};${expires};path=/`;
+            } else {
+                // Elimina la cookie si 'Remember Me' no está marcada
+                document.cookie = 'username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            }
+        }
+
+        // Función para obtener el valor de una cookie específica
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Al cargar la página, verifica si hay un nombre de usuario guardado en la cookie
+        window.addEventListener('load', function() {
+            const rememberedUsername = getCookie('username');
+            if (rememberedUsername) {
+                document.getElementById('username').value = rememberedUsername;
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        // Manejo del evento 'pageshow' para recargar la página si es necesario
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                document.getElementById("loginForm").reset();
+                // Recarga la página para obtener un nuevo token CSRF
+                window.location.reload();
+            }
+        });
+
+        // Asocia la función 'handleRememberMe' al evento 'submit' del formulario
+        document.getElementById('loginForm').onsubmit = handleRememberMe;
+    </script>
+</body>
+
+</html>
