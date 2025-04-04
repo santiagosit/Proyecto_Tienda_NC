@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Ingresos{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Lista de Ingresos</h2>
+    
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="filters-section">
+        <button id="filtroButton" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+        <a href="{% url 'crear_ingreso_personalizado' %}" class="cta-btn">Crear Ingreso Personalizado</a>
+    </div>
+
+    <!-- Modal para filtros -->
+    <div id="filtroModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="filtroForm" method="GET" action="{% url 'listar_ingresos' %}">
+                <h3>Filtrar Ingresos</h3>
+
+                <div class="form-group">
+                    <label for="filtro-tipo">Tipo:</label>
+                    <select id="filtro-tipo" name="tipo" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="venta">Ventas</option>
+                        <option value="personalizado">Personalizados</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-fecha">Rango de Fechas:</label>
+                    <div class="date-range">
+                        <input type="date" id="filtro-fecha-desde" name="fecha_desde" 
+                               class="form-control" value="{{ request.GET.fecha_desde }}">
+                        <span>hasta</span>
+                        <input type="date" id="filtro-fecha-hasta" name="fecha_hasta" 
+                               class="form-control" value="{{ request.GET.fecha_hasta }}">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                    <a href="{% url 'listar_ingresos' %}" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingreso in ingresos %}
+                <tr>
+                    <td>{{ ingreso.id }}</td>
+                    <td>
+                        {% if ingreso.venta %}
+                            Venta #{{ ingreso.venta.id }}
+                        {% else %}
+                            Personalizado
+                        {% endif %}
+                    </td>
+                    <td>{{ ingreso.descripcion|default:"Sin descripción" }}</td>
+                    <td>${{ ingreso.monto|floatformat:2 }}</td>
+                    <td>{{ ingreso.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'detalle_ingreso' ingreso.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            {% if perms.app_finanzas.delete_ingreso %}
+                            <a href="{% url 'eliminar_ingreso' ingreso.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No hay ingresos registrados
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal handling
+        const modal = document.getElementById('filtroModal');
+        const btn = document.getElementById('filtroButton');
+        const span = document.querySelector('.close');
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+{% endblock %}

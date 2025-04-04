@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <h2 class="section-title">Detalle del Egreso</h2>
+        </div>
+        
+        <div class="confirmation-content">
+            <div class="event-details">
+                <p><strong>ID:</strong> {{ egreso.id }}</p>
+                <p><strong>Tipo:</strong> {{ egreso.get_tipo_display }}</p>
+                <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y H:i" }}</p>
+                <p><strong>Descripción:</strong> {{ egreso.descripcion }}</p>
+                
+                {% if detalles %}
+                    <div class="table-wrapper">
+                        <h3>Detalles del Pedido</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detalle in detalles %}
+                                <tr>
+                                    <td>{{ detalle.producto }}</td>
+                                    <td>{{ detalle.cantidad }}</td>
+                                    <td>{{ detalle.costo_unitario }}</td>
+                                    <td>{{ detalle.subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                    <td><strong>{{ total }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Este egreso es personalizado y no tiene detalles asociados.
+                    </p>
+                    <p><strong>Monto:</strong> {{ total }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <div class="button-group">
+                    <a href="{% url 'listar_egresos' %}" class="btn btn-secondary">Volver a la lista</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

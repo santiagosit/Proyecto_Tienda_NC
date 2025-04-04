@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Proveedores{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Lista de Proveedores</h2>
+
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="filters-section">
+        <button id="filtroButton" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+        <a href="{% url 'registrar_proveedor' %}" class="cta-btn">
+            <i class="fas fa-plus"></i> Nuevo Proveedor
+        </a>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.telefono }}</td>
+                    <td>{{ proveedor.email }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'editar_proveedor' proveedor.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_proveedor' proveedor.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay proveedores registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ...same modal handling script as above...
+</script>
+{% endblock %}

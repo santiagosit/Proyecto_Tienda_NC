@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de mi Venta #{{ venta.id }}{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <h2 class="section-title">Detalle de Venta #{{ venta.id }}</h2>
+        </div>
+        
+        <div class="confirmation-content">
+            <div class="event-details">
+                <p><strong>Fecha:</strong> {{ venta.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                <p><strong>Estado:</strong> 
+                    <span class="badge {% if venta.estado == 'completada' %}badge-success{% else %}badge-warning{% endif %}">
+                        {{ venta.get_estado_display }}
+                    </span>
+                </p>
+                
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+                                <td>{{ detalle.producto.nombre }}</td>
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+                                <td>${{ detalle.precio_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                <td>${{ total|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <div class="button-group">
+                    <a href="{% url 'mis_ventas' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a mis ventas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wrapper {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.info-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.total {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.1em;
+}
+
+.badge {
+    padding: 0.5em 1em;
+}
+
+.table {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Empleado{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <h2 class="section-title text-danger">Confirmar Eliminación</h2>
+            <h4 class="confirmation-subtitle">¿Está seguro que desea eliminar este empleado?</h4>
+        </div>
+        
+        <div class="confirmation-content">
+            <div class="event-details">
+                <p><strong>Usuario:</strong> {{ empleado.user.username }}</p>
+                <p><strong>Email:</strong> {{ empleado.user.email }}</p>
+                <p><strong>Teléfono:</strong> {{ empleado.telefono }}</p>
+                <p><strong>Fecha de Contratación:</strong> {{ empleado.fecha_contratacion }}</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p class="mb-0"><strong>Advertencia:</strong> Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+            
+            <form method="post" class="confirmation-actions">
+                {% csrf_token %}
+                <div class="button-group">
+                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                    <a href="{% url 'listar_empleados' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

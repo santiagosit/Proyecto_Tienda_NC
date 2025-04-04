@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Pola-Control{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <header class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p class="date">{{ today|date:"l, d F Y" }}</p>
+    </header>
+
+    <!-- Quick Stats Section -->
+    <section class="quick-stats">
+        <div class="stat-card income">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="stat-info">
+                <h3>Ingresos Hoy</h3>
+                <p>${{ ingresos_hoy|floatformat:2 }}</p>
+            </div>
+        </div>
+        <div class="stat-card expense">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="stat-info">
+                <h3>Egresos Hoy</h3>
+                <p>${{ egresos_hoy|floatformat:2 }}</p>
+            </div>
+        </div>
+        <div class="stat-card sales">
+            <i class="fas fa-receipt"></i>
+            <div class="stat-info">
+                <h3>Ventas Hoy</h3>
+                <p>{{ ventas_hoy }}</p>
+            </div>
+        </div>
+        <div class="stat-card events">
+            <i class="fas fa-calendar"></i>
+            <div class="stat-info">
+                <h3>Eventos Pendientes</h3>
+                <p>{{ eventos_pendientes_count }}</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="dashboard-grid">
+        <!-- Inventory Status -->
+        <div class="dashboard-card">
+            <h3>Estado del Inventario</h3>
+            <div class="inventory-stats">
+                <div class="stat-item">
+                    <span class="label">Productos Sin Stock</span>
+                    <span class="value danger">{{ productos_sin_stock_count }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Stock Bajo</span>
+                    <span class="value warning">{{ productos_bajo_stock_count }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Stock Normal</span>
+                    <span class="value success">{{ productos_stock_normal_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Summary -->
+        <div class="dashboard-card">
+            <h3>Últimas Ventas</h3>
+            <div class="recent-list">
+                {% for venta in ultimas_ventas %}
+                <div class="recent-item">
+                    <span class="time">{{ venta.fecha_creacion|time:"H:i" }}</span>
+                    <span class="amount">${{ venta.total|floatformat:2 }}</span>
+                </div>
+                {% empty %}
+                <p>No hay ventas recientes</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Orders -->
+        <div class="dashboard-card">
+            <h3>Pedidos Pendientes</h3>
+            <div class="recent-list">
+                {% for pedido in pedidos_pendientes %}
+                <div class="recent-item">
+                    <span>{{ pedido.proveedor.nombre }}</span>
+                    <span class="date">{{ pedido.fecha_pedido|date:"d/m/Y" }}</span>
+                </div>
+                {% empty %}
+                <p>No hay pedidos pendientes</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Orders & Events -->
+        <div class="dashboard-card">
+            <h3>Pedidos y Eventos</h3>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="pedidos">Pedidos</button>
+                <button class="tab-btn" data-tab="eventos">Eventos</button>
+            </div>
+            <div class="tab-content active" id="pedidos">
+                {% for pedido in pedidos_pendientes %}
+                <div class="recent-item">
+                    <div class="item-info">
+                        <span>{{ pedido.proveedor.nombre }}</span>
+                        <span class="date">{{ pedido.fecha_pedido|date:"d/m/Y" }}</span>
+                    </div>
+                    <span class="status {{ pedido.estado }}">{{ pedido.estado }}</span>
+                </div>
+                {% empty %}
+                <p class="no-data">No hay pedidos pendientes</p>
+                {% endfor %}
+            </div>
+            <div class="tab-content" id="eventos">
+                {% for evento in eventos_proximos %}
+                <div class="recent-item">
+                    <div class="item-info">
+                        <span>{{ evento.cliente.nombre }}</span>
+                        <span class="date">{{ evento.fecha_evento|date:"d/m/Y" }}</span>
+                    </div>
+                    <span class="status {{ evento.estado }}">{{ evento.estado }}</span>
+                </div>
+                {% empty %}
+                <p class="no-data">No hay eventos próximos</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="dashboard-card">
+            <h3>Resumen Financiero (Mes Actual)</h3>
+            <div class="financial-summary">
+                <div class="summary-item">
+                    <span class="label">Ingresos Totales</span>
+                    <span class="value positive">${{ ingresos_mes|floatformat:2 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Egresos Totales</span>
+                    <span class="value negative">${{ egresos_mes|floatformat:2 }}</span>
+                </div>
+                <div class="summary-item total">
+                    <span class="label">Balance</span>
+                    <span class="value {% if balance_mes >= 0 %}positive{% else %}negative{% endif %}">
+                        ${{ balance_mes|floatformat:2 }}
+                    </span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="financialChart"></canvas>
+            </div>
+            <a href="{% url 'reporte_ingresos_egresos' %}" class="card-link">Ver Detalles</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-wrapper {
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+
+.stat-card i {
+    font-size: 2rem;
+    margin-right: 1rem;
+}
+
+.stat-card.income i { color: #2ecc71; }
+.stat-card.expense i { color: #e74c3c; }
+.stat-card.sales i { color: #3498db; }
+.stat-card.events i { color: #9b59b6; }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+    height: 200px;
+    margin: 1rem 0;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tab-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.value.danger { color: #dc3545; }
+.value.warning { color: #ffc107; }
+.value.success { color: #28a745; }
+.value.positive { color: #28a745; }
+.value.negative { color: #dc3545; }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Definir las variables con los datos de Django
+    const inventoryData = {
+        sinStock: "{{ productos_sin_stock_count|default:0 }}",
+        stockBajo: "{{ productos_bajo_stock_count|default:0 }}",
+        stockNormal: "{{ productos_stock_normal_count|default:0 }}"
+    };
+
+    const financialData = {
+        ingresos: "{{ ingresos_mes|default:0 }}",
+        egresos: "{{ egresos_mes|default:0 }}",
+        balance: "{{ balance_mes|default:0 }}"
+    };
+
+    // Tab functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Inventory Chart
+    const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+    new Chart(inventoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sin Stock', 'Stock Bajo', 'Stock Normal'],
+            datasets: [{
+                data: [
+                    inventoryData.sinStock,
+                    inventoryData.stockBajo,
+                    inventoryData.stockNormal
+                ],
+                backgroundColor: ['#dc3545', '#ffc107', '#28a745']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Financial Chart
+    const financialCtx = document.getElementById('financialChart').getContext('2d');
+    new Chart(financialCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Ingresos', 'Egresos', 'Balance'],
+            datasets: [{
+                data: [
+                    financialData.ingresos,
+                    financialData.egresos,
+                    financialData.balance
+                ],
+                backgroundColor: ['#28a745', '#dc3545', '#007bff']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

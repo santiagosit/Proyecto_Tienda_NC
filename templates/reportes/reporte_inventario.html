@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Inventario{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="report-header">
+        <h1>Reporte de Inventario</h1>
+        <a href="{% url 'exportar_reporte_excel' %}" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exportar a Excel
+        </a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="report-section card">
+            <h2>Productos más vendidos</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Total Vendido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_mas_vendidos %}
+                        <tr>
+                            <td>{{ producto.producto__nombre }}</td>
+                            <td class="text-center">{{ producto.total_vendido }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center">No hay datos disponibles</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="report-section card">
+            <h2>Productos sin stock</h2>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                Productos que requieren reposición inmediata
+            </div>
+            <div class="list-group">
+                {% for producto in productos_sin_stock %}
+                <div class="list-group-item">
+                    <i class="fas fa-box-open text-danger"></i>
+                    {{ producto.nombre }}
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center">No hay productos sin stock</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="report-section card">
+            <h2>Productos con bajo stock</h2>
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                Productos por debajo del stock mínimo
+            </div>
+            <div class="list-group">
+                {% for producto in productos_agotandose %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>{{ producto.nombre }}</span>
+                        <span class="badge bg-warning">Stock: {{ producto.cantidad_stock }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center">No hay productos con bajo stock</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="report-section card">
+            <h2>Productos sin ventas</h2>
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i>
+                Productos que no han registrado ventas
+            </div>
+            <div class="list-group">
+                {% for producto in productos_no_vendidos %}
+                <div class="list-group-item">
+                    <i class="fas fa-box text-secondary"></i>
+                    {{ producto.nombre }}
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center">Todos los productos tienen ventas</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.report-section h2 {
+    color: #333;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.list-group-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}
+</style>
+{% endblock %}

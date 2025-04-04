@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Ingreso #{{ ingreso.id }}{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <h2 class="section-title">
+                Detalle del Ingreso #{{ ingreso.id }}
+                <span class="badge {% if ingreso.venta %}badge-success{% else %}badge-info{% endif %}">
+                    {{ ingreso.get_tipo_display }}
+                </span>
+            </h2>
+        </div>
+        
+        <div class="confirmation-content">
+            <div class="event-details">
+                <div class="detail-group">
+                    <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Tipo:</strong> {{ ingreso.get_tipo_display }}</p>
+                    <p><strong>Monto Total:</strong> ${{ ingreso.monto|floatformat:2 }}</p>
+                    <p><strong>Descripción:</strong> 
+                        {% if ingreso.descripcion %}
+                            {{ ingreso.descripcion }}
+                        {% else %}
+                            <span class="text-muted">Sin descripción</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if ingreso.venta %}
+                    <div class="detail-group">
+                        <h3>Detalles de la Venta Asociada</h3>
+                        <p><strong>Venta ID:</strong> #{{ ingreso.venta.id }}</p>
+                        <p><strong>Estado:</strong> 
+                            <span class="badge 
+                                {% if ingreso.venta.estado == 'completada' %}badge-success
+                                {% elif ingreso.venta.estado == 'pendiente' %}badge-warning
+                                {% else %}badge-danger{% endif %}">
+                                {{ ingreso.venta.get_estado_display }}
+                            </span>
+                        </p>
+                        
+                        {% if ingreso.venta.detalles.all %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unitario</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for detalle in ingreso.venta.detalles.all %}
+                                        <tr>
+                                            <td>{{ detalle.producto.nombre }}</td>
+                                            <td>{{ detalle.cantidad }}</td>
+                                            <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+                                            <td>${{ detalle.precio_total|floatformat:2 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                            <td><strong>${{ ingreso.venta.total|floatformat:2 }}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in detalles %}
+                        <tr>
+                            <td>{{ detalle.producto.nombre }}</td>
+                            <td>{{ detalle.cantidad }}</td>
+                            <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+                            <td>${{ detalle.precio_total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                            <td><strong>${{ subtotal|floatformat:2 }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>IVA (19%):</strong></td>
+                            <td><strong>${{ iva|floatformat:2 }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td><strong>${{ total|floatformat:2 }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="form-actions">
+                <div class="button-group">
+                    {% if perms.app_finanzas.delete_ingreso %}
+                    <a href="{% url 'eliminar_ingreso' ingreso.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'listar_ingresos' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

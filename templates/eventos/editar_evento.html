@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Editar Evento</h2>
+    <div class="form-container">
+        {% if messages %}
+        <div class="form-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="event-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nombre">Nombre del Cliente</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ evento.cliente.nombre }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" value="{{ evento.cliente.telefono }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ evento.cliente.email }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_evento">Fecha del Evento</label>
+                    <input type="datetime-local" id="fecha_evento" name="fecha_evento" value="{{ evento.fecha_evento|date:'Y-m-d\TH:i' }}" class="form-control" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="descripcion">Descripción del Evento</label>
+                    <textarea id="descripcion" name="descripcion" class="form-control" rows="4" required>{{ evento.descripcion }}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <a href="{% url 'listar_eventos' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

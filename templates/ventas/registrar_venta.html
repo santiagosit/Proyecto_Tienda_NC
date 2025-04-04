@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar Venta{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h1>Registrar Venta</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulario para añadir productos -->
+    <div class="add-product-form">
+        <h2>Añadir Producto</h2>
+        <form method="post" class="form-producto">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="producto">Producto:</label>
+                <select name="producto" id="producto" class="form-control" required>
+                    <option value="">Seleccione un producto</option>
+                    {% for producto in productos %}
+                    <option value="{{ producto.id }}" 
+                            data-precio="{{ producto.precio }}"
+                            data-stock="{{ producto.cantidad_stock }}">
+                        {{ producto.nombre }} - Stock: {{ producto.cantidad_stock }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" name="cantidad" id="cantidad" 
+                       min="1" value="1" class="form-control" required>
+            </div>
+            <button type="submit" name="agregar_producto" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Producto
+            </button>
+        </form>
+    </div>
+
+    <!-- Tabla de productos añadidos -->
+    <div class="products-table mt-4">
+        <h2>Productos en la Venta</h2>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detalle in productos_venta %}
+                    <tr>
+                        <td>{{ detalle.producto_nombre }}</td>
+                        <td>{{ detalle.cantidad }}</td>
+                        <td>${{ detalle.precio_unitario }}</td>
+                        <td>${{ detalle.subtotal }}</td>
+                        <td>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="eliminar_producto" value="{{ forloop.counter0 }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay productos agregados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen de totales -->
+    <div class="totals-summary">
+        <div class="card">
+            <div class="card-body">
+                <h3>Resumen de la Venta</h3>
+                <div class="totals-detail">
+                    <p class="total"><strong>Total:</strong> ${{ total|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="actions mt-4">
+        <form method="post" class="form-confirmar">
+            {% csrf_token %}
+            <button type="submit" name="confirmar_venta" 
+                    class="btn btn-success" 
+                    {% if not productos_venta %}disabled{% endif %}>
+                <i class="fas fa-check"></i> Confirmar Venta
+            </button>
+        </form>
+        <a href="{% url 'home' %}" class="btn btn-secondary mt-2">
+            <i class="fas fa-arrow-left"></i> Volver al Inicio
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productoSelect = document.getElementById('producto');
+    const cantidadInput = document.getElementById('cantidad');
+    
+    productoSelect.addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        const stock = parseInt(option.dataset.stock);
+        cantidadInput.max = stock;
+        cantidadInput.value = Math.min(cantidadInput.value, stock);
+    });
+
+    cantidadInput.addEventListener('change', function() {
+        const stock = parseInt(productoSelect.options[productoSelect.selectedIndex].dataset.stock);
+        if (this.value > stock) {
+            this.value = stock;
+            alert('La cantidad no puede superar el stock disponible');
+        }
+    });
+
+    // After successful sale, redirect based on role
+    const messages = JSON.parse('{{ messages|safe|escapejs }}');
+    messages.forEach(message => {
+        if (message.tags === 'success') {
+            const userRole = '{{ request.user.profile.rol }}';
+            if (userRole === 'Empleado') {
+                window.location.href = "{% url 'mis_ventas' %}";
+            } else {
+                window.location.href = "{% url 'listar_ventas' %}";
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

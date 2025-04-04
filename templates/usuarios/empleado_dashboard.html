@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Empleado{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>¡Bienvenido, {{ request.user.profile.nombre_completo }}!</h1>
+        <p class="date">{{ today|date:"l, d F Y" }}</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card sales">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Ventas de Hoy</h3>
+                <p class="number">{{ cantidad_ventas_hoy }}</p>
+                <p class="amount">${{ total_ventas_hoy|floatformat:2 }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card monthly">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Ventas del Mes</h3>
+                <p class="number">{{ cantidad_ventas_mes }}</p>
+                <p class="amount">${{ total_ventas_mes|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-grid">
+        <!-- Últimas Ventas -->
+        <div class="dashboard-card">
+            <h3>Últimas Ventas</h3>
+            <div class="recent-list">
+                {% for venta in ultimas_ventas %}
+                <div class="recent-item">
+                    <div class="item-info">
+                        <span class="time">{{ venta.fecha_creacion|time:"H:i" }}</span>
+                        <span class="amount">${{ venta.total|floatformat:2 }}</span>
+                    </div>
+                    <span class="status {{ venta.estado }}">{{ venta.get_estado_display }}</span>
+                </div>
+                {% empty %}
+                <p class="no-data">No hay ventas recientes</p>
+                {% endfor %}
+            </div>
+            <a href="{% url 'listar_ventas' %}" class="card-link">Ver Todas mis Ventas</a>
+        </div>
+
+        <!-- Productos Más Vendidos -->
+        <div class="dashboard-card">
+            <h3>Mis Productos Más Vendidos</h3>
+            <div class="product-list">
+                {% for producto in productos_mas_vendidos %}
+                <div class="product-item">
+                    <span class="product-name">{{ producto.producto__nombre }}</span>
+                    <span class="product-sales">{{ producto.total_vendido }} unidades</span>
+                </div>
+                {% empty %}
+                <p class="no-data">No hay datos disponibles</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-wrapper {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+}
+
+.stat-card.sales .stat-icon { color: #2ecc71; }
+.stat-card.monthly .stat-icon { color: #3498db; }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recent-item, .product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.status.pendiente { background: #fff3cd; color: #856404; }
+.status.completada { background: #d4edda; color: #155724; }
+.status.cancelada { background: #f8d7da; color: #721c24; }
+
+.card-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.card-link:hover {
+    background: #e9ecef;
+}
+</style>
+{% endblock %}

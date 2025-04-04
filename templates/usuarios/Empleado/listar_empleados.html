@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Listar Empleados{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Lista de Empleados</h2>
+
+    {% if messages %}
+    <div class="form-messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="filters-section">
+        <button id="filtroButton" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+        <a href="{% url 'crear_empleado' %}" class="cta-btn">
+            <i class="fas fa-user-plus"></i> Crear Nuevo Empleado
+        </a>
+    </div>
+
+    <!-- Modal para filtros -->
+    <div id="filtroModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="filtroForm" method="GET" action="{% url 'listar_empleados' %}">
+                <h3>Filtrar Empleados</h3>
+                
+                <div class="form-group">
+                    <label for="filtro-nombre">Nombre:</label>
+                    <input type="text" id="filtro-nombre" name="nombre" class="form-control" value="{{ request.GET.nombre }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-email">Email:</label>
+                    <input type="email" id="filtro-email" name="email" class="form-control" value="{{ request.GET.email }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-telefono">Teléfono:</label>
+                    <input type="text" id="filtro-telefono" name="telefono" class="form-control" value="{{ request.GET.telefono }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-fecha">Fecha de Contratación:</label>
+                    <div class="date-range">
+                        <input type="date" id="filtro-fecha-desde" name="fecha_desde" class="form-control" 
+                               value="{{ request.GET.fecha_desde }}">
+                        <span>hasta</span>
+                        <input type="date" id="filtro-fecha-hasta" name="fecha_hasta" class="form-control" 
+                               value="{{ request.GET.fecha_hasta }}">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                    <a href="{% url 'listar_empleados' %}" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Fecha de Contratación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in empleados %}
+                <tr>
+                    <td>{{ empleado.user.username }}</td>
+                    <td>{{ empleado.user.email }}</td>
+                    <td>{{ empleado.telefono }}</td>
+                    <td>{{ empleado.direccion }}</td>
+                    <td>{{ empleado.fecha_contratacion }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'editar_empleado' empleado.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_empleado' empleado.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('filtroButton').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'block';
+    }
+
+    document.querySelector('.close').onclick = function() {
+        document.getElementById('filtroModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('filtroModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

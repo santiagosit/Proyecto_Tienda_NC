@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Producto{% endblock %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/estilosinvreg.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h1>Modificar Producto</h1>
+    {% if messages %}
+        <div class="message">
+            <ul>
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <input type="submit" value="Guardar Cambios" class="btn">
+    </form>
+    <a href="{% url 'listar_productos' %}" class="btn">Volver a la lista de productos</a>
+</div>
+{% endblock %}

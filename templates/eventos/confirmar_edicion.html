@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Confirmar Cambios en el Evento</h2>
+    <div class="section-cards">
+        <div class="card">
+            <h3>Datos Actuales</h3>
+            <div class="card-content">
+                <p><strong>Cliente:</strong> {{ evento.cliente.nombre }}</p>
+                <p><strong>Teléfono:</strong> {{ evento.cliente.telefono }}</p>
+                <p><strong>Email:</strong> {{ evento.cliente.email }}</p>
+                <p><strong>Descripción:</strong> {{ evento.descripcion }}</p>
+                <p><strong>Fecha:</strong> {{ evento.fecha_evento }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Nuevos Datos</h3>
+            <div class="card-content">
+                <p><strong>Cliente:</strong> {{ new_data.nombre }}</p>
+                <p><strong>Teléfono:</strong> {{ new_data.telefono }}</p>
+                <p><strong>Email:</strong> {{ new_data.email }}</p>
+                <p><strong>Descripción:</strong> {{ new_data.descripcion }}</p>
+                <p><strong>Fecha:</strong> {{ new_data.fecha_evento }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'confirmar_edicion_evento' evento.id %}" class="form-actions">
+        {% csrf_token %}
+        {% for key, value in new_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Confirmar Cambios</button>
+        <a href="{% url 'editar_evento' evento.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

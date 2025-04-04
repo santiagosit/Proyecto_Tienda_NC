@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Detalles del Pedido{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <h2 class="section-title">Detalles del Pedido #{{ pedido.id }}</h2>
+        </div>
+        
+        <div class="confirmation-content">
+            <div class="event-details">
+                <div class="detail-group">
+                    <p><strong>Proveedor:</strong> {{ pedido.proveedor.nombre }}</p>
+                    <p><strong>Fecha del Pedido:</strong> {{ pedido.fecha_pedido|date:"d/m/Y" }}</p>
+                    <p><strong>Estado:</strong> 
+                        <span class="badge 
+                            {% if pedido.estado == 'recibido' %}badge-success
+                            {% elif pedido.estado == 'en camino' %}badge-warning
+                            {% else %}badge-secondary{% endif %}">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </p>
+                </div>
+
+                <div class="detail-group">
+                    <h3>Productos del Pedido</h3>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detalle in pedido.detalles.all %}
+                                <tr>
+                                    <td>{{ detalle.producto.nombre }}</td>
+                                    <td>{{ detalle.cantidad }}</td>
+                                    <td>${{ detalle.costo_unitario|floatformat:2 }}</td>
+                                    <td>${{ detalle.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>${{ pedido.total|floatformat:2 }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <div class="button-group">
+                    <a href="{% url 'listar_pedidos' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

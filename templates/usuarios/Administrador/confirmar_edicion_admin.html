@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Confirmar Cambios en el Administrador</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="section-cards">
+        <div class="card">
+            <h3>Datos Actuales</h3>
+            <dl>
+                <dt>Usuario:</dt>
+                <dd>{{ admin.user.username }}</dd>
+                <dt>Nombre Completo:</dt>
+                <dd>{{ admin.nombre_completo|default:"No especificado" }}</dd>
+                <dt>Email:</dt>
+                <dd>{{ admin.user.email }}</dd>
+                <dt>Teléfono:</dt>
+                <dd>{{ admin.telefono|default:"No especificado" }}</dd>
+                <dt>Dirección:</dt>
+                <dd>{{ admin.direccion|default:"No especificada" }}</dd>
+                <dt>Rol:</dt>
+                <dd>{{ admin.rol }}</dd>
+            </dl>
+        </div>
+        
+        <div class="card">
+            <h3>Nuevos Datos</h3>
+            <dl>
+                <dt>Usuario:</dt>
+                <dd>{{ new_data.username }}</dd>
+                <dt>Nombre Completo:</dt>
+                <dd>{{ new_data.nombre_completo|default:"No especificado" }}</dd>
+                <dt>Email:</dt>
+                <dd>{{ new_data.email }}</dd>
+                <dt>Teléfono:</dt>
+                <dd>{{ new_data.telefono|default:"No especificado" }}</dd>
+                <dt>Dirección:</dt>
+                <dd>{{ new_data.direccion|default:"No especificada" }}</dd>
+                <dt>Rol:</dt>
+                <dd>{{ new_data.rol }}</dd>
+                {% if show_password_change %}
+                <dt>Contraseña:</dt>
+                <dd>Se actualizará la contraseña</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+    
+    <form method="post" class="form-actions">
+        {% csrf_token %}
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">Confirmar Cambios</button>
+            <a href="{% url 'editar_administrador' admin.id %}" class="btn btn-secondary">Volver</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

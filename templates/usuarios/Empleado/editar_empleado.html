@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Empleado{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <h2 class="section-title">Editar Empleado</h2>
+    <div class="form-container">
+        <form method="post" class="event-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in user_form %}
+                    <div class="form-group {% if field.name in 'email,username' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% for field in profile_form %}
+                    <div class="form-group {% if field.name == 'direccion' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.name == 'fecha_contratacion' %}
+                            <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                   class="form-control" value="{{ empleado.fecha_contratacion|date:'Y-m-d' }}" required>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <a href="{% url 'listar_empleados' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
